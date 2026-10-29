@@ -1,0 +1,24 @@
+{
+  "short_name": "LocalShop",
+  "name": "LocalShop Progressive Web App",
+  "description": "Catálogo de productos regionales",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "display": "standalone",
+  "lang": "es-MX"
+}
