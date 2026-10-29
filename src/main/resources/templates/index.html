@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo de productos regionales - PWA con Spring Boot">
+    <meta name="theme-color" content="#0d6efd">
+    <title>LocalShop PWA - SSR</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/images/icon-192.png">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-dark bg-primary mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1">LocalShop PWA (Spring Boot SSR)</span>
+            <button id="btnGeo" class="btn btn-outline-light btn-sm">Obtener Ubicación</button>
+        </div>
+    </nav>
+
+    <!-- aparece solo cuando se pierde la conexion -->
+    <div id="aviso-offline" class="alert alert-warning text-center rounded-0 py-2 d-none">
+        Sin conexión: estás viendo la versión guardada en caché.
+    </div>
+
+    <div class="container">
+        <div id="status-location" class="mb-3 text-muted"></div>
+
+        <h2 class="mb-3">Catálogo de Productos (Datos desde BD)</h2>
+
+        <p class="text-muted" th:if="${#lists.isEmpty(productos)}">No hay productos registrados.</p>
+
+        <div class="row">
+            <div class="col-md-4 mb-3" th:each="producto : ${productos}">
+                <div class="card h-100 shadow-sm">
+                    <img th:if="${producto.imagenUrl != null}" th:src="${producto.imagenUrl}"
+                         class="card-img-top" th:alt="${producto.nombre}">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${producto.nombre}">Nombre</h5>
+                        <p class="card-text" th:text="${producto.descripcion}">Descripción</p>
+                        <p class="fw-bold text-success"
+                           th:text="${'$' + #numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-muted small py-4">
+        Renderizado en servidor con Thymeleaf
+    </footer>
+
+    <script>
+        // Registro del Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+                .catch(err => console.error('Error al registrar Service Worker:', err));
+        }
+
+        // aviso de offline
+        const aviso = document.getElementById('aviso-offline');
+        const revisarConexion = () => aviso.classList.toggle('d-none', navigator.onLine);
+        window.addEventListener('online', revisarConexion);
+        window.addEventListener('offline', revisarConexion);
+        revisarConexion();
+
+        // Uso de API de hardware (Geolocalización)
+        document.getElementById('btnGeo').addEventListener('click', () => {
+            const status = document.getElementById('status-location');
+
+            if (!navigator.geolocation) {
+                status.innerText = 'Este navegador no soporta geolocalización.';
+                return;
+            }
+
+            status.innerText = 'Buscando ubicación...';
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lon = pos.coords.longitude.toFixed(4);
+                    status.innerHTML = `Ubicación actual: Lat ${lat}, Lon ${lon} ` +
+                        `(<a href="https://www.google.com/maps?q=${lat},${lon}" target="_blank" rel="noopener">ver en mapa</a>)`;
+                },
+                err => {
+                    if (err.code === err.PERMISSION_DENIED) {
+                        status.innerText = 'Se negó el permiso de ubicación.';
+                    } else {
+                        status.innerText = 'No se pudo obtener la ubicación del dispositivo.';
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        });
+    </script>
+</body>
+</html>
