@@ -97,7 +97,7 @@ Al presionar "Obtener Ubicación" el navegador pide permiso y se muestran la lat
 Requisitos: JDK 21 y Maven (o IntelliJ, que ya trae Maven).
 
 ```bash
-git clone https://github.com/USUARIO/localshop-pwa.git
+git clone https://github.com/perrohambreado/localshop-pwa.git
 cd localshop-pwa
 mvn spring-boot:run
 ```
